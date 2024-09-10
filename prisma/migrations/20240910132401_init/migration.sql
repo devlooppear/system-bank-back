@@ -1,3 +1,9 @@
+-- CreateEnum
+CREATE TYPE "AccountType" AS ENUM ('CORRENTE', 'POUPANCA');
+
+-- CreateEnum
+CREATE TYPE "TransactionType" AS ENUM ('TED', 'PIX');
+
 -- CreateTable
 CREATE TABLE "users" (
     "id" SERIAL NOT NULL,
@@ -15,7 +21,7 @@ CREATE TABLE "accounts" (
     "id" SERIAL NOT NULL,
     "user_id" INTEGER NOT NULL,
     "balance" DOUBLE PRECISION NOT NULL,
-    "account_type" TEXT NOT NULL,
+    "account_type" "AccountType" NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -26,7 +32,7 @@ CREATE TABLE "accounts" (
 CREATE TABLE "transactions" (
     "id" SERIAL NOT NULL,
     "account_id" INTEGER NOT NULL,
-    "transaction_type" TEXT NOT NULL,
+    "transaction_type" "TransactionType" NOT NULL,
     "amount" DOUBLE PRECISION NOT NULL,
     "transaction_date" TIMESTAMP(3) NOT NULL,
     "cpf_recipient" TEXT,

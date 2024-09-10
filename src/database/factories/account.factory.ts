@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { AccountType, PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import { Account } from 'src/models/accounts/entities/account.entity';
 
@@ -11,10 +11,12 @@ export const accountFactory = async (
   const balance =
     Math.floor(Math.random() * (maxBalance - minBalance + 1)) + minBalance;
 
+  const accountType = faker.helpers.arrayElement(Object.values(AccountType));
+
   const accountData = {
     user_id: faker.helpers.arrayElement(userIds),
     balance: balance,
-    account_type: faker.finance.accountName(),
+    account_type: accountType,
     created_at: new Date(),
     updated_at: new Date(),
   };

@@ -1,3 +1,14 @@
+// Remeber: any changes in enum or in the models, always update it dependencies, pls
+
+enum AccountType {
+  CORRENTE
+  POUPANCA
+}
+
+enum TransactionType {
+  TED
+  PIX
+}
 generator client {
   provider = "prisma-client-js"
 }
@@ -22,12 +33,12 @@ model User {
 }
 
 model Account {
-  id           Int      @id @default(autoincrement())
+  id           Int         @id @default(autoincrement())
   user_id      Int
   balance      Float
-  account_type String
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  account_type AccountType
+  created_at   DateTime    @default(now())
+  updated_at   DateTime    @updatedAt
 
   user         User          @relation(fields: [user_id], references: [id])
   transactions Transaction[]
@@ -36,9 +47,9 @@ model Account {
 }
 
 model Transaction {
-  id                   Int      @id @default(autoincrement())
+  id                   Int               @id @default(autoincrement())
   account_id           Int
-  transaction_type     String
+  transaction_type     TransactionType
   amount               Float
   transaction_date     DateTime
   cpf_recipient        String?
@@ -49,10 +60,10 @@ model Transaction {
   account_recipient    String?
   pix_key              String?
   transaction_password String
-  created_at           DateTime @default(now())
-  updated_at           DateTime @updatedAt
+  created_at           DateTime          @default(now())
+  updated_at           DateTime          @updatedAt
 
-  account            Account             @relation(fields: [account_id], references: [id])
+  account            Account              @relation(fields: [account_id], references: [id])
   transactionHistory TransactionHistory[] @relation("TransactionHistoryTransactions")
 
   @@map("transactions")

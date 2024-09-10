@@ -1,4 +1,4 @@
-import { PrismaClient, Transaction } from '@prisma/client';
+import { PrismaClient, Transaction, TransactionType } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
@@ -52,25 +52,23 @@ export const transactionFactory = async (
   const transactionPassword = faker.internet.password();
   const hashedPassword = await bcrypt.hash(transactionPassword, SALT_ROUNDS);
 
-  const transactionData: Omit<
-    Transaction,
-    'id' | 'created_at' | 'updated_at'
-  > = {
-    account_id: faker.helpers.arrayElement(accountIds),
-    transaction_type: faker.helpers.arrayElement(['debit', 'credit']) as
-      | 'debit'
-      | 'credit',
-    amount: parseFloat(amount.toFixed(2)),
-    transaction_date: new Date(),
-    cpf_recipient,
-    cnpj_recipient,
-    recipient_name: faker.person.fullName(),
-    bank: faker.helpers.arrayElement(bankList),
-    branch: generateBranchNumber(),
-    account_recipient: generateAccountNumber(),
-    pix_key: uuidv4(),
-    transaction_password: hashedPassword,
-  };
+  const transactionData: Omit<Transaction, 'id' | 'created_at' | 'updated_at'> =
+    {
+      account_id: faker.helpers.arrayElement(accountIds),
+      transaction_type: faker.helpers.arrayElement(
+        Object.values(TransactionType),
+      ),
+      amount: parseFloat(amount.toFixed(2)),
+      transaction_date: new Date(),
+      cpf_recipient,
+      cnpj_recipient,
+      recipient_name: faker.person.fullName(),
+      bank: faker.helpers.arrayElement(bankList),
+      branch: generateBranchNumber(),
+      account_recipient: generateAccountNumber(),
+      pix_key: uuidv4(),
+      transaction_password: hashedPassword,
+    };
 
   const createdTransaction = await prisma.transaction.create({
     data: transactionData,
