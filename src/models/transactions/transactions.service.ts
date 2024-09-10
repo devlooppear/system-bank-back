@@ -60,17 +60,46 @@ export class TransactionsService {
     }
   }
 
-  async findAll(page: number = 1, limit: number = 10) {
+  async findAll(
+    page: number = 1,
+    limit: number = 10,
+    filters: any = {},
+    sortBy: string = 'transaction_date',
+    sortOrder: 'asc' | 'desc' = 'desc',
+  ) {
     try {
       const parsedLimit = parseInt(limit as any, 10);
       const parsedPage = parseInt(page as any, 10);
+      const whereConditions: any = {};
+
+      if (filters.transaction_type) {
+        whereConditions.transaction_type = filters.transaction_type;
+      }
+      if (filters.startDate && filters.endDate) {
+        whereConditions.transaction_date = {
+          gte: new Date(filters.startDate),
+          lte: new Date(filters.endDate),
+        };
+      }
+      if (filters.minAmount && filters.maxAmount) {
+        whereConditions.amount = {
+          gte: filters.minAmount,
+          lte: filters.maxAmount,
+        };
+      }
 
       const [transactions, total] = await Promise.all([
         this.prisma.transaction.findMany({
           skip: (parsedPage - 1) * parsedLimit,
           take: parsedLimit,
+          where: whereConditions,
+          orderBy: {
+            [sortBy]: sortOrder,
+          },
         }),
-        this.prisma.transaction.count(),
+        this.prisma.transaction.count({
+          where: whereConditions,
+        }),
       ]);
 
       return {
