@@ -11,6 +11,8 @@ import {
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
+import { CreateTransactionHistoryDto } from '../transaction-histories/dto/create-transaction-history.dto';
+import { UpdateTransactionHistoryDto } from '../transaction-histories/dto/update-transaction-history.dto';
 import { ApiQuery } from '@nestjs/swagger';
 
 @Controller('transactions')
@@ -18,8 +20,14 @@ export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
   @Post()
-  create(@Body() createTransactionDto: CreateTransactionDto) {
-    return this.transactionsService.create(createTransactionDto);
+  create(
+    @Body() createTransactionDto: CreateTransactionDto,
+    @Body() createTransactionHistoryDto: CreateTransactionHistoryDto,
+  ) {
+    return this.transactionsService.create(
+      createTransactionDto,
+      createTransactionHistoryDto,
+    );
   }
 
   @Get()
@@ -38,8 +46,13 @@ export class TransactionsController {
   update(
     @Param('id') id: string,
     @Body() updateTransactionDto: UpdateTransactionDto,
+    @Body() updateTransactionHistoryDto: UpdateTransactionHistoryDto,
   ) {
-    return this.transactionsService.update(+id, updateTransactionDto);
+    return this.transactionsService.update(
+      +id,
+      updateTransactionDto,
+      updateTransactionHistoryDto,
+    );
   }
 
   @Delete(':id')

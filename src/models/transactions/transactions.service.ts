@@ -1,18 +1,37 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from 'src/prisma.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
-import { PrismaService } from 'src/prisma.service';
+import { TransactionHistoriesService } from '../transaction-histories/transaction-histories.service';
 import logger from 'winston.config';
+import { CreateTransactionHistoryDto } from '../transaction-histories/dto/create-transaction-history.dto';
+import { UpdateTransactionHistoryDto } from '../transaction-histories/dto/update-transaction-history.dto';
 
 @Injectable()
 export class TransactionsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly transactionHistoriesService: TransactionHistoriesService,
+  ) {}
 
-  async create(createTransactionDto: CreateTransactionDto) {
+  async create(
+    createTransactionDto: CreateTransactionDto,
+    createTransactionHistoryDto: CreateTransactionHistoryDto,
+  ) {
     try {
       const transaction = await this.prisma.transaction.create({
         data: createTransactionDto,
       });
+
+      const transactionHistoryData: CreateTransactionHistoryDto = {
+        transaction_id: transaction.id,
+        user_id: createTransactionHistoryDto.user_id, 
+        movement_date: new Date(),
+        created_at: new Date(),
+      };
+
+      await this.transactionHistoriesService.create(transactionHistoryData);
+
       return { data: transaction };
     } catch (error) {
       logger.error('Error creating transaction: ', error);
@@ -65,12 +84,25 @@ export class TransactionsService {
     }
   }
 
-  async update(id: number, updateTransactionDto: UpdateTransactionDto) {
+  async update(
+    id: number,
+    updateTransactionDto: UpdateTransactionDto,
+    updateTransactionHistoryDto: UpdateTransactionHistoryDto,
+  ) {
     try {
       const transaction = await this.prisma.transaction.update({
         where: { id },
         data: updateTransactionDto,
       });
+
+      const transactionHistoryData: CreateTransactionHistoryDto = {
+        transaction_id: transaction.id,
+        user_id: updateTransactionHistoryDto.user_id,
+        movement_date: new Date(),
+        updated_at: new Date(),
+      };
+
+      await this.transactionHistoriesService.create(transactionHistoryData);
 
       return { data: transaction };
     } catch (error) {
