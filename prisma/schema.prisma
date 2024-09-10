@@ -17,6 +17,8 @@ model Users {
 
   accounts           Accounts[]
   transactionHistory TransactionHistory[]
+
+  @@map("users")
 }
 
 model Accounts {
@@ -29,6 +31,8 @@ model Accounts {
 
   user         Users          @relation(fields: [user_id], references: [id])
   transactions Transactions[]
+
+  @@map("accounts")
 }
 
 model Transactions {
@@ -50,6 +54,8 @@ model Transactions {
 
   account            Accounts             @relation(fields: [account_id], references: [id])
   transactionHistory TransactionHistory[] @relation("TransactionHistoryTransactions")
+
+  @@map("transactions")
 }
 
 model TransactionHistory {
@@ -62,4 +68,6 @@ model TransactionHistory {
 
   transaction Transactions @relation("TransactionHistoryTransactions", fields: [transaction_id], references: [id])
   user        Users        @relation(fields: [user_id], references: [id])
+
+  @@map("transaction_history")
 }
