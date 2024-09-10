@@ -19,7 +19,7 @@ export const userFactory = async (
     updated_at: new Date(),
   };
 
-  const createdUser = await prisma.users.create({
+  const createdUser = await prisma.user.create({
     data: userData,
   });
 

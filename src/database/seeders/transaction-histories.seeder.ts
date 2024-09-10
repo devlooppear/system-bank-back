@@ -5,10 +5,10 @@ export async function seedTransactionHistories(prisma: PrismaClient) {
   try {
     const numberOfHistories = 100;
 
-    const transactions = await prisma.transactions.findMany();
+    const transactions = await prisma.transaction.findMany();
     const transactionIds = transactions.map((transaction) => transaction.id);
 
-    const users = await prisma.users.findMany();
+    const users = await prisma.user.findMany();
     const userIds = users.map((user) => user.id);
 
     await Promise.all(

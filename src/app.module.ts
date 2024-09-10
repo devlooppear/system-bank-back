@@ -22,6 +22,6 @@ dotenv.config();
     TransactionHistoriesModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService],
+  providers: [AppService],
 })
 export class AppModule {}

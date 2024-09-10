@@ -3,9 +3,9 @@ import { accountFactory } from '../factories/account.factory';
 
 export async function seedAccounts(prisma: PrismaClient) {
   try {
-    const numberOfAccounts = 50; // Defina quantas contas você deseja criar
+    const numberOfAccounts = 50;
 
-    const users = await prisma.users.findMany();
+    const users = await prisma.user.findMany();
     const userIds = users.map(user => user.id);
 
     await Promise.all(

@@ -1,4 +1,4 @@
-import { PrismaClient, Transactions } from '@prisma/client';
+import { PrismaClient, Transaction } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
@@ -31,7 +31,7 @@ const generateBranchNumber = (): string => {
 export const transactionFactory = async (
   prisma: PrismaClient,
   accountIds: number[],
-): Promise<Transactions> => {
+): Promise<Transaction> => {
   const amount = Math.random() * (1000 - 1) + 1;
 
   const useCNPJ = Math.random() < 0.5;
@@ -53,7 +53,7 @@ export const transactionFactory = async (
   const hashedPassword = await bcrypt.hash(transactionPassword, SALT_ROUNDS);
 
   const transactionData: Omit<
-    Transactions,
+    Transaction,
     'id' | 'created_at' | 'updated_at'
   > = {
     account_id: faker.helpers.arrayElement(accountIds),
@@ -72,7 +72,7 @@ export const transactionFactory = async (
     transaction_password: hashedPassword,
   };
 
-  const createdTransaction = await prisma.transactions.create({
+  const createdTransaction = await prisma.transaction.create({
     data: transactionData,
   });
 

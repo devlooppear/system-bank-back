@@ -3,7 +3,7 @@ import { transactionFactory } from '../factories/transactions.factory';
 
 export async function seedTransactions(prisma: PrismaClient) {
   try {
-    const accounts = await prisma.accounts.findMany();
+    const accounts = await prisma.account.findMany();
     const accountIds = accounts.map((account) => account.id);
 
     const numberOfTransactions = 100;
