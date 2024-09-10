@@ -14,6 +14,11 @@ export class TransactionsService {
     private readonly transactionHistoriesService: TransactionHistoriesService,
   ) {}
 
+  private omitTransactionPassword(transaction: any) {
+    const { transaction_password, ...transactionWithoutPassword } = transaction;
+    return transactionWithoutPassword;
+  }
+
   async create(
     createTransactionDto: CreateTransactionDto,
     createTransactionHistoryDto: CreateTransactionHistoryDto,
@@ -32,7 +37,7 @@ export class TransactionsService {
 
       await this.transactionHistoriesService.create(transactionHistoryData);
 
-      return { data: transaction };
+      return { data: this.omitTransactionPassword(transaction) };
     } catch (error) {
       logger.error('Error creating transaction: ', error);
       throw new Error('Could not create transaction');
@@ -53,7 +58,7 @@ export class TransactionsService {
       ]);
 
       return {
-        data: transactions,
+        data: transactions.map(this.omitTransactionPassword),
         meta: {
           total,
           page: parsedPage,
@@ -77,7 +82,7 @@ export class TransactionsService {
         throw new NotFoundException(`Transaction with ID ${id} not found`);
       }
 
-      return { data: transaction };
+      return { data: this.omitTransactionPassword(transaction) };
     } catch (error) {
       logger.error(`Error fetching transaction with ID ${id}: `, error);
       throw new Error('Could not fetch transaction');
@@ -104,7 +109,7 @@ export class TransactionsService {
 
       await this.transactionHistoriesService.create(transactionHistoryData);
 
-      return { data: transaction };
+      return { data: this.omitTransactionPassword(transaction) };
     } catch (error) {
       logger.error(`Error updating transaction with ID ${id}: `, error);
       throw new Error('Could not update transaction');
