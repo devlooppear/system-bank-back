@@ -7,6 +7,7 @@ enum TransactionType {
   TED
   PIX
 }
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -45,7 +46,7 @@ model Account {
 }
 
 model Transaction {
-  id                   Int               @id @default(autoincrement())
+  id                   Int             @id @default(autoincrement())
   account_id           Int
   transaction_type     TransactionType
   amount               Float
@@ -58,10 +59,10 @@ model Transaction {
   account_recipient    String?
   pix_key              String?
   transaction_password String
-  created_at           DateTime          @default(now())
-  updated_at           DateTime          @updatedAt
+  created_at           DateTime        @default(now())
+  updated_at           DateTime        @updatedAt
 
-  account            Account              @relation(fields: [account_id], references: [id])
+  account            Account              @relation(fields: [account_id], references: [id], onDelete: Cascade)
   transactionHistory TransactionHistory[] @relation("TransactionHistoryTransactions")
 
   @@map("transactions")
@@ -75,7 +76,7 @@ model TransactionHistory {
   created_at     DateTime @default(now())
   updated_at     DateTime @updatedAt
 
-  transaction Transaction @relation("TransactionHistoryTransactions", fields: [transaction_id], references: [id])
+  transaction Transaction @relation("TransactionHistoryTransactions", fields: [transaction_id], references: [id], onDelete: Cascade)
   user        User        @relation(fields: [user_id], references: [id])
 
   @@map("transaction_history")
