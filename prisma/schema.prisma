@@ -27,6 +27,7 @@ model User {
 
   accounts           Account[]
   transactionHistory TransactionHistory[]
+  tokens             PersonalAccessToken[]
 
   @@map("users")
 }
@@ -80,4 +81,16 @@ model TransactionHistory {
   user        User        @relation(fields: [user_id], references: [id])
 
   @@map("transaction_history")
+}
+
+model PersonalAccessToken {
+  id         Int       @id @default(autoincrement())
+  token      String    @unique
+  user_id    Int
+  created_at DateTime  @default(now())
+  expires_at DateTime?
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("personal_access_tokens")
 }

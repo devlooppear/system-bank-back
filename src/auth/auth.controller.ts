@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Delete, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 
@@ -12,7 +12,10 @@ export class AuthController {
   }
 
   @Delete('logout')
-  logout(@Body('userId') userId: number) {
+  logout(@Body('user_id') userId: number) {
+    if (!userId || typeof userId !== 'number') {
+      throw new UnauthorizedException('Invalid user ID');
+    }
     return this.authService.logout(userId);
   }
 }
