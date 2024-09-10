@@ -8,6 +8,7 @@ import { UsersModule } from './models/users/users.module';
 import { AccountsModule } from './models/accounts/accounts.module';
 import { TransactionsModule } from './models/transactions/transactions.module';
 import { TransactionHistoriesModule } from './models/transaction-histories/transaction-histories.module';
+import { AuthModule } from './auth/auth.module';
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ dotenv.config();
     AccountsModule,
     TransactionsModule,
     TransactionHistoriesModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
