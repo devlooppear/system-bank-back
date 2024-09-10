@@ -1,26 +1,102 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from 'src/prisma.service';
 import { CreateTransactionHistoryDto } from './dto/create-transaction-history.dto';
 import { UpdateTransactionHistoryDto } from './dto/update-transaction-history.dto';
+import logger from 'winston.config';
 
 @Injectable()
 export class TransactionHistoriesService {
-  create(createTransactionHistoryDto: CreateTransactionHistoryDto) {
-    return 'This action adds a new transactionHistory';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createTransactionHistoryDto: CreateTransactionHistoryDto) {
+    try {
+      const transactionHistory = await this.prisma.transactionHistory.create({
+        data: createTransactionHistoryDto,
+      });
+      return { data: transactionHistory };
+    } catch (error) {
+      logger.error('Error creating transaction history: ', error);
+      throw new Error('Could not create transaction history');
+    }
   }
 
-  findAll() {
-    return `This action returns all transactionHistories`;
+  async findAll(page: number = 1, limit: number = 10) {
+    try {
+      const parsedLimit = parseInt(limit as any, 10);
+      const parsedPage = parseInt(page as any, 10);
+
+      const [transactionHistories, total] = await Promise.all([
+        this.prisma.transactionHistory.findMany({
+          skip: (parsedPage - 1) * parsedLimit,
+          take: parsedLimit,
+        }),
+        this.prisma.transactionHistory.count(),
+      ]);
+
+      return {
+        data: transactionHistories,
+        meta: {
+          total,
+          page: parsedPage,
+          limit: parsedLimit,
+          totalPages: Math.ceil(total / parsedLimit),
+        },
+      };
+    } catch (error) {
+      logger.error('Error fetching transaction histories: ', error);
+      throw new Error('Could not fetch transaction histories');
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} transactionHistory`;
+  async findOne(id: number) {
+    try {
+      const transactionHistory =
+        await this.prisma.transactionHistory.findUnique({
+          where: { id },
+        });
+
+      if (!transactionHistory) {
+        throw new NotFoundException(
+          `Transaction History with ID ${id} not found`,
+        );
+      }
+
+      return { data: transactionHistory };
+    } catch (error) {
+      logger.error(`Error fetching transaction history with ID ${id}: `, error);
+      throw new Error('Could not fetch transaction history');
+    }
   }
 
-  update(id: number, updateTransactionHistoryDto: UpdateTransactionHistoryDto) {
-    return `This action updates a #${id} transactionHistory`;
+  async update(
+    id: number,
+    updateTransactionHistoryDto: UpdateTransactionHistoryDto,
+  ) {
+    try {
+      const transactionHistory = await this.prisma.transactionHistory.update({
+        where: { id },
+        data: updateTransactionHistoryDto,
+      });
+
+      return { data: transactionHistory };
+    } catch (error) {
+      logger.error(`Error updating transaction history with ID ${id}: `, error);
+      throw new Error('Could not update transaction history');
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} transactionHistory`;
+  async remove(id: number) {
+    try {
+      await this.prisma.transactionHistory.delete({
+        where: { id },
+      });
+
+      return {
+        message: `Transaction History with ID ${id} removed successfully`,
+      };
+    } catch (error) {
+      logger.error(`Error removing transaction history with ID ${id}: `, error);
+      throw new Error('Could not remove transaction history');
+    }
   }
 }

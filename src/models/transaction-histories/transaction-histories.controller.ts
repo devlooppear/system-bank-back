@@ -1,11 +1,23 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { TransactionHistoriesService } from './transaction-histories.service';
 import { CreateTransactionHistoryDto } from './dto/create-transaction-history.dto';
 import { UpdateTransactionHistoryDto } from './dto/update-transaction-history.dto';
+import { ApiQuery } from '@nestjs/swagger';
 
 @Controller('transaction-histories')
 export class TransactionHistoriesController {
-  constructor(private readonly transactionHistoriesService: TransactionHistoriesService) {}
+  constructor(
+    private readonly transactionHistoriesService: TransactionHistoriesService,
+  ) {}
 
   @Post()
   create(@Body() createTransactionHistoryDto: CreateTransactionHistoryDto) {
@@ -13,7 +25,9 @@ export class TransactionHistoriesController {
   }
 
   @Get()
-  findAll() {
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
     return this.transactionHistoriesService.findAll();
   }
 
@@ -23,8 +37,14 @@ export class TransactionHistoriesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTransactionHistoryDto: UpdateTransactionHistoryDto) {
-    return this.transactionHistoriesService.update(+id, updateTransactionHistoryDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateTransactionHistoryDto: UpdateTransactionHistoryDto,
+  ) {
+    return this.transactionHistoriesService.update(
+      +id,
+      updateTransactionHistoryDto,
+    );
   }
 
   @Delete(':id')
