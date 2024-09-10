@@ -1,5 +1,3 @@
-// Remeber: any changes in enum or in the models, always update it dependencies, pls
-
 enum AccountType {
   CORRENTE
   POUPANCA
