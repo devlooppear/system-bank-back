@@ -5,11 +5,8 @@ export async function seedAccounts(prisma: PrismaClient) {
   try {
     const numberOfAccounts = 50;
 
-    const users = await prisma.user.findMany();
-    const userIds = users.map(user => user.id);
-
     await Promise.all(
-      Array.from({ length: numberOfAccounts }, () => accountFactory(prisma, userIds)),
+      Array.from({ length: numberOfAccounts }, () => accountFactory(prisma)),
     );
 
     console.log('Accounts seeded successfully:');

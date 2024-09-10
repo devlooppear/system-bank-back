@@ -4,8 +4,6 @@ import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { TransactionHistoriesService } from '../transaction-histories/transaction-histories.service';
 import logger from 'winston.config';
-import { CreateTransactionHistoryDto } from '../transaction-histories/dto/create-transaction-history.dto';
-import { UpdateTransactionHistoryDto } from '../transaction-histories/dto/update-transaction-history.dto';
 
 @Injectable()
 export class TransactionsService {
@@ -19,23 +17,41 @@ export class TransactionsService {
     return transactionWithoutPassword;
   }
 
-  async create(
-    createTransactionDto: CreateTransactionDto,
-    createTransactionHistoryDto: CreateTransactionHistoryDto,
-  ) {
+  async create(createTransactionDto: CreateTransactionDto) {
     try {
-      const transaction = await this.prisma.transaction.create({
-        data: createTransactionDto,
+      const account = await this.prisma.account.findUnique({
+        where: { id: createTransactionDto.account_id },
+        include: { user: true },
       });
 
-      const transactionHistoryData: CreateTransactionHistoryDto = {
-        transaction_id: transaction.id,
-        user_id: createTransactionHistoryDto.user_id, 
-        movement_date: new Date(),
-        created_at: new Date(),
-      };
+      if (!account || !account.user) {
+        throw new Error(
+          'Account not found or does not have an associated user',
+        );
+      }
 
-      await this.transactionHistoriesService.create(transactionHistoryData);
+      const transaction = await this.prisma.transaction.create({
+        data: {
+          account_id: createTransactionDto.account_id,
+          transaction_type: createTransactionDto.transaction_type,
+          amount: createTransactionDto.amount,
+          transaction_date: createTransactionDto.transaction_date,
+          cpf_recipient: createTransactionDto.cpf_recipient,
+          cnpj_recipient: createTransactionDto.cnpj_recipient,
+          recipient_name: createTransactionDto.recipient_name,
+          bank: createTransactionDto.bank,
+          branch: createTransactionDto.branch,
+          account_recipient: createTransactionDto.account_recipient,
+          pix_key: createTransactionDto.pix_key,
+          transaction_password: createTransactionDto.transaction_password,
+          transactionHistory: {
+            create: {
+              user_id: account.user.id,
+              movement_date: new Date(),
+            },
+          },
+        },
+      });
 
       return { data: this.omitTransactionPassword(transaction) };
     } catch (error) {
@@ -89,27 +105,31 @@ export class TransactionsService {
     }
   }
 
-  async update(
-    id: number,
-    updateTransactionDto: UpdateTransactionDto,
-    updateTransactionHistoryDto: UpdateTransactionHistoryDto,
-  ) {
+  async update(id: number, updateTransactionDto: UpdateTransactionDto) {
     try {
-      const transaction = await this.prisma.transaction.update({
+      const transaction = await this.prisma.transaction.findUnique({
         where: { id },
-        data: updateTransactionDto,
+        include: { account: { include: { user: true } } },
       });
 
-      const transactionHistoryData: CreateTransactionHistoryDto = {
-        transaction_id: transaction.id,
-        user_id: updateTransactionHistoryDto.user_id,
-        movement_date: new Date(),
-        updated_at: new Date(),
-      };
+      if (!transaction) {
+        throw new NotFoundException(`Transaction with ID ${id} not found`);
+      }
 
-      await this.transactionHistoriesService.create(transactionHistoryData);
+      const updatedTransaction = await this.prisma.transaction.update({
+        where: { id },
+        data: {
+          ...updateTransactionDto,
+          transactionHistory: {
+            create: {
+              user_id: transaction.account.user.id,
+              movement_date: new Date(),
+            },
+          },
+        },
+      });
 
-      return { data: this.omitTransactionPassword(transaction) };
+      return { data: this.omitTransactionPassword(updatedTransaction) };
     } catch (error) {
       logger.error(`Error updating transaction with ID ${id}: `, error);
       throw new Error('Could not update transaction');

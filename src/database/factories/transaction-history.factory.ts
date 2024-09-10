@@ -4,15 +4,17 @@ import { faker } from '@faker-js/faker';
 
 export const transactionHistoryFactory = async (
   prisma: PrismaClient,
-  transactionIds: number[],
-  userIds: number[],
 ): Promise<TransactionHistory> => {
+  const users = await prisma.user.findMany();
+  const userIds = users.map((user) => user.id);
+
+  const transactions = await prisma.transaction.findMany();
+  const transactionIds = transactions.map((transaction) => transaction.id);
+
   const transactionHistoryData = {
     transaction_id: faker.helpers.arrayElement(transactionIds),
     user_id: faker.helpers.arrayElement(userIds),
     movement_date: new Date(),
-    created_at: new Date(),
-    updated_at: new Date(),
   };
 
   const createdTransactionHistory = await prisma.transactionHistory.create({

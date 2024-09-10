@@ -4,8 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 
 const SALT_ROUNDS = 10;
-
-const bankList = [
+const BANK_LIST = [
   'Banco Aurora',
   'Luminis',
   'Brasil Nexa',
@@ -18,61 +17,53 @@ const bankList = [
   'HSBC Inova',
 ];
 
+const generateRandomNumber = (min: number, max: number): number => {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
 const generateAccountNumber = (): string => {
-  const num = Math.floor(Math.random() * 90000000000) + 10000000000;
-  return num.toString();
+  return generateRandomNumber(10000000000, 99999999999).toString();
 };
 
 const generateBranchNumber = (): string => {
-  const num = Math.floor(Math.random() * 9000) + 1000;
-  return num.toString();
+  return generateRandomNumber(1000, 9999).toString();
 };
 
-export const transactionFactory = async (
-  prisma: PrismaClient,
-  accountIds: number[],
-): Promise<Transaction> => {
-  const amount = Math.random() * (1000 - 1) + 1;
+const generateCPF = (): string => {
+  return generateRandomNumber(10000000000, 99999999999).toString();
+};
 
+const generateCNPJ = (): string => {
+  return generateRandomNumber(10000000000000, 99999999999999).toString();
+};
+
+export const transactionFactory = async (prisma: PrismaClient): Promise<Transaction> => {
+  const accounts = await prisma.account.findMany();
+  const accountIds = accounts.map(account => account.id);
+
+  const amount = parseFloat((Math.random() * (1000 - 1) + 1).toFixed(2));
   const useCNPJ = Math.random() < 0.5;
 
-  const generateCPF = (): string => {
-    const num = Math.floor(Math.random() * 90000000000) + 10000000000;
-    return num.toString();
-  };
-
-  const generateCNPJ = (): string => {
-    const num = Math.floor(Math.random() * 90000000000000) + 10000000000000;
-    return num.toString();
-  };
-
-  const cpf_recipient: string | null = useCNPJ ? null : generateCPF();
-  const cnpj_recipient: string | null = useCNPJ ? generateCNPJ() : null;
+  const cpf_recipient = useCNPJ ? null : generateCPF();
+  const cnpj_recipient = useCNPJ ? generateCNPJ() : null;
 
   const transactionPassword = faker.internet.password();
   const hashedPassword = await bcrypt.hash(transactionPassword, SALT_ROUNDS);
 
-  const transactionData: Omit<Transaction, 'id' | 'created_at' | 'updated_at'> =
-    {
-      account_id: faker.helpers.arrayElement(accountIds),
-      transaction_type: faker.helpers.arrayElement(
-        Object.values(TransactionType),
-      ),
-      amount: parseFloat(amount.toFixed(2)),
-      transaction_date: new Date(),
-      cpf_recipient,
-      cnpj_recipient,
-      recipient_name: faker.person.fullName(),
-      bank: faker.helpers.arrayElement(bankList),
-      branch: generateBranchNumber(),
-      account_recipient: generateAccountNumber(),
-      pix_key: uuidv4(),
-      transaction_password: hashedPassword,
-    };
+  const transactionData = {
+    account_id: faker.helpers.arrayElement(accountIds),
+    transaction_type: faker.helpers.arrayElement(Object.values(TransactionType)),
+    amount,
+    transaction_date: new Date(),
+    cpf_recipient,
+    cnpj_recipient,
+    recipient_name: faker.person.fullName(),
+    bank: faker.helpers.arrayElement(BANK_LIST),
+    branch: generateBranchNumber(),
+    account_recipient: generateAccountNumber(),
+    pix_key: uuidv4(),
+    transaction_password: hashedPassword,
+  };
 
-  const createdTransaction = await prisma.transaction.create({
-    data: transactionData,
-  });
-
-  return createdTransaction;
+  return await prisma.transaction.create({ data: transactionData });
 };
