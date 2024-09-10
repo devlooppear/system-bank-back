@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -6,4 +5,61 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Users {
+  id         Int      @id @default(autoincrement())
+  name       String
+  email      String   @unique
+  password   String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  accounts           Accounts[]
+  transactionHistory TransactionHistory[]
+}
+
+model Accounts {
+  id           Int      @id @default(autoincrement())
+  user_id      Int
+  balance      Float
+  account_type String
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  user         Users          @relation(fields: [user_id], references: [id])
+  transactions Transactions[]
+}
+
+model Transactions {
+  id                   Int      @id @default(autoincrement())
+  account_id           Int
+  transaction_type     String
+  amount               Float
+  transaction_date     DateTime
+  cpf_recipient        String?
+  cnpj_recipient       String?
+  recipient_name       String
+  bank                 String?
+  branch               String?
+  account_recipient    String?
+  pix_key              String?
+  transaction_password String
+  created_at           DateTime @default(now())
+  updated_at           DateTime @updatedAt
+
+  account            Accounts             @relation(fields: [account_id], references: [id])
+  transactionHistory TransactionHistory[] @relation("TransactionHistoryTransactions")
+}
+
+model TransactionHistory {
+  id             Int      @id @default(autoincrement())
+  transaction_id Int
+  user_id        Int
+  movement_date  DateTime
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  transaction Transactions @relation("TransactionHistoryTransactions", fields: [transaction_id], references: [id])
+  user        Users        @relation(fields: [user_id], references: [id])
 }

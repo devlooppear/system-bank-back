@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import * as dotenv from 'dotenv';
+import { PrismaService } from './prisma.service';
 
 dotenv.config();
 
@@ -13,7 +14,6 @@ dotenv.config();
     }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PrismaService],
 })
-
 export class AppModule {}
