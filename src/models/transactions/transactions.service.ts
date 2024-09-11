@@ -18,11 +18,15 @@ export class TransactionsService {
       const account = await this.prisma.account.findFirst({
         where: { user_id: userId },
       });
-
+  
       if (!account) {
         throw new Error('Account not found for the user');
       }
-
+  
+      if (account.balance < createTransactionDto.amount) {
+        throw new Error('Insufficient funds');
+      }
+  
       const transaction = await this.prisma.transaction.create({
         data: {
           account_id: account.id,
@@ -45,7 +49,14 @@ export class TransactionsService {
           },
         },
       });
-
+  
+      await this.prisma.account.update({
+        where: { id: account.id },
+        data: {
+          balance: account.balance - createTransactionDto.amount,
+        },
+      });
+  
       return { data: this.omitTransactionPassword(transaction) };
     } catch (error) {
       logger.error('Error creating transaction: ', error);

@@ -34,7 +34,7 @@ model User {
 
 model Account {
   id           Int         @id @default(autoincrement())
-  user_id      Int
+  user_id      Int         @unique
   balance      Float
   account_type AccountType
   created_at   DateTime    @default(now())

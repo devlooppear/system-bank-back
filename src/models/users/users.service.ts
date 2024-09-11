@@ -47,12 +47,20 @@ export class UsersService {
         this.prisma.user.findMany({
           skip: (parsedPage - 1) * parsedLimit,
           take: parsedLimit,
+          include: { accounts: true },
         }),
         this.prisma.user.count(),
       ]);
 
       return {
-        data: users.map(this.omitPassword),
+        data: users.map((user) => ({
+          ...this.omitPassword(user),
+          accounts: user.accounts.map((account) => ({
+            id: account.id,
+            balance: account.balance,
+            account_type: account.account_type,
+          })),
+        })),
         meta: {
           total,
           page: parsedPage,
@@ -70,13 +78,23 @@ export class UsersService {
     try {
       const user = await this.prisma.user.findUnique({
         where: { id },
+        include: { accounts: true },
       });
 
       if (!user) {
         throw new NotFoundException(`User with ID ${id} not found`);
       }
 
-      return { data: this.omitPassword(user) };
+      return {
+        data: {
+          ...this.omitPassword(user),
+          accounts: user.accounts.map((account) => ({
+            id: account.id,
+            balance: account.balance,
+            account_type: account.account_type,
+          })),
+        },
+      };
     } catch (error) {
       logger.error(`Error fetching user with ID ${id}: `, error);
       throw new Error('Could not fetch user');
