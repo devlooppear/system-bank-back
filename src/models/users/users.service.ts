@@ -3,6 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma.service';
 import logger from 'winston.config';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -15,8 +16,13 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto) {
     try {
+      const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+
       const user = await this.prisma.user.create({
-        data: createUserDto,
+        data: {
+          ...createUserDto,
+          password: hashedPassword,
+        },
       });
       return { data: this.omitPassword(user) };
     } catch (error) {
@@ -72,6 +78,10 @@ export class UsersService {
 
   async update(id: number, updateUserDto: UpdateUserDto) {
     try {
+      if (updateUserDto.password) {
+        updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+      }
+
       const user = await this.prisma.user.update({
         where: { id },
         data: updateUserDto,

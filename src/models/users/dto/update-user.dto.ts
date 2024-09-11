@@ -5,17 +5,17 @@ export class UpdateUserDto {
   @ApiProperty({ description: 'Name of the user', required: false })
   @IsOptional()
   @IsString()
-  readonly name?: string;
+  name?: string;
 
   @ApiProperty({ description: 'Email of the user', required: false })
   @IsOptional()
   @IsEmail()
-  readonly email?: string;
+  email?: string;
 
   @ApiProperty({ description: 'Password of the user', required: false })
   @IsOptional()
   @IsString()
-  readonly password?: string;
+  password?: string;
 
   @ApiProperty({
     description: 'Creation date of the user',
@@ -24,7 +24,7 @@ export class UpdateUserDto {
   })
   @IsOptional()
   @IsDate()
-  readonly created_at?: Date;
+  created_at?: Date;
 
   @ApiProperty({
     description: 'Last updated date of the user',
@@ -33,5 +33,5 @@ export class UpdateUserDto {
   })
   @IsOptional()
   @IsDate()
-  readonly updated_at?: Date;
+  updated_at?: Date;
 }
