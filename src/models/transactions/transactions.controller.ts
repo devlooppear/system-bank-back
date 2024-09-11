@@ -7,19 +7,26 @@ import {
   Param,
   Delete,
   Query,
+  Req,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { ApiQuery } from '@nestjs/swagger';
+import { Request } from 'express';
 
 @Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
   @Post()
-  create(@Body() createTransactionDto: CreateTransactionDto) {
-    return this.transactionsService.create(createTransactionDto);
+  async create(
+    @Req() request: Request,
+    @Body() createTransactionDto: CreateTransactionDto,
+  ) {
+    const userId = request.user.id;
+
+    return this.transactionsService.create(createTransactionDto, userId);
   }
 
   @Get()

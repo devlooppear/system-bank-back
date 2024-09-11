@@ -4,13 +4,14 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma.service';
 import logger from 'winston.config';
 import * as bcrypt from 'bcrypt';
-import { TransactionType } from '@prisma/client';
+import { TransactionType, User } from '@prisma/client';
+import { AuthUser } from 'src/interfaces/auth-user.interface';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private omitPassword(user: any) {
+  private omitPassword(user: User): AuthUser {
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
@@ -76,6 +77,23 @@ export class UsersService {
       }
 
       return { data: this.omitPassword(user) };
+    } catch (error) {
+      logger.error(`Error fetching user with ID ${id}: `, error);
+      throw new Error('Could not fetch user');
+    }
+  }
+
+  async findAuthUser(id: number): Promise<AuthUser> {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id },
+      });
+
+      if (!user) {
+        throw new NotFoundException(`User with ID ${id} not found`);
+      }
+
+      return this.omitPassword(user) as AuthUser;
     } catch (error) {
       logger.error(`Error fetching user with ID ${id}: `, error);
       throw new Error('Could not fetch user');

@@ -2,22 +2,18 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
-import { TransactionHistoriesService } from '../transaction-histories/transaction-histories.service';
 import logger from 'winston.config';
 
 @Injectable()
 export class TransactionsService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly transactionHistoriesService: TransactionHistoriesService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   private omitTransactionPassword(transaction: any) {
     const { transaction_password, ...transactionWithoutPassword } = transaction;
     return transactionWithoutPassword;
   }
 
-  async create(createTransactionDto: CreateTransactionDto) {
+  async create(createTransactionDto: CreateTransactionDto, userId: number) {
     try {
       const account = await this.prisma.account.findUnique({
         where: { id: createTransactionDto.account_id },
@@ -46,7 +42,7 @@ export class TransactionsService {
           transaction_password: createTransactionDto.transaction_password,
           transactionHistory: {
             create: {
-              user_id: account.user.id,
+              user_id: userId,
               movement_date: new Date(),
             },
           },
