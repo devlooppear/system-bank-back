@@ -14,6 +14,11 @@ export class UsersService {
     return userWithoutPassword;
   }
 
+  private omitTransactionPassword(transaction: any) {
+    const { transaction_password, ...transactionWithoutPassword } = transaction;
+    return transactionWithoutPassword;
+  }
+
   async create(createUserDto: CreateUserDto) {
     try {
       const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
@@ -73,6 +78,44 @@ export class UsersService {
     } catch (error) {
       logger.error(`Error fetching user with ID ${id}: `, error);
       throw new Error('Could not fetch user');
+    }
+  }
+
+  async getUserTransactions(
+    userId: number,
+    page: number = 1,
+    limit: number = 10,
+  ) {
+    try {
+      const parsedLimit = parseInt(limit as any, 10);
+      const parsedPage = parseInt(page as any, 10);
+
+      const [transactions, total] = await Promise.all([
+        this.prisma.transaction.findMany({
+          where: { account: { user_id: userId } },
+          skip: (parsedPage - 1) * parsedLimit,
+          take: parsedLimit,
+        }),
+        this.prisma.transaction.count({
+          where: { account: { user_id: userId } },
+        }),
+      ]);
+
+      return {
+        data: transactions.map(this.omitTransactionPassword),
+        meta: {
+          total,
+          page: parsedPage,
+          limit: parsedLimit,
+          totalPages: Math.ceil(total / parsedLimit),
+        },
+      };
+    } catch (error) {
+      logger.error(
+        `Error fetching transactions for user with ID ${userId}: `,
+        error,
+      );
+      throw new Error('Could not fetch user transactions');
     }
   }
 
