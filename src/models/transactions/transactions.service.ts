@@ -15,20 +15,17 @@ export class TransactionsService {
 
   async create(createTransactionDto: CreateTransactionDto, userId: number) {
     try {
-      const account = await this.prisma.account.findUnique({
-        where: { id: createTransactionDto.account_id },
-        include: { user: true },
+      const account = await this.prisma.account.findFirst({
+        where: { user_id: userId },
       });
 
-      if (!account || !account.user) {
-        throw new Error(
-          'Account not found or does not have an associated user',
-        );
+      if (!account) {
+        throw new Error('Account not found for the user');
       }
 
       const transaction = await this.prisma.transaction.create({
         data: {
-          account_id: createTransactionDto.account_id,
+          account_id: account.id,
           transaction_type: createTransactionDto.transaction_type,
           amount: createTransactionDto.amount,
           transaction_date: createTransactionDto.transaction_date,
