@@ -65,7 +65,7 @@ export class TransactionsService {
     limit: number = 10,
     filters: any = {},
     sortBy: string = 'transaction_date',
-    sortOrder: 'asc' | 'desc' = 'desc',
+    sortOrder: 'asc' | 'desc' = 'asc',
   ) {
     try {
       const parsedLimit = parseInt(limit as any, 10);
@@ -88,6 +88,14 @@ export class TransactionsService {
         };
       }
 
+      if (filters.user_id) {
+        whereConditions.transactionHistory = {
+          some: {
+            user_id: filters.user_id,
+          },
+        };
+      }
+
       const [transactions, total] = await Promise.all([
         this.prisma.transaction.findMany({
           skip: (parsedPage - 1) * parsedLimit,
@@ -96,6 +104,13 @@ export class TransactionsService {
           orderBy: {
             [sortBy]: sortOrder,
           },
+          include: {
+            transactionHistory: {
+              include: {
+                user: true,
+              },
+            },
+          },
         }),
         this.prisma.transaction.count({
           where: whereConditions,
@@ -103,7 +118,23 @@ export class TransactionsService {
       ]);
 
       return {
-        data: transactions.map(this.omitTransactionPassword),
+        data: transactions.map((transaction) => {
+          return {
+            ...this.omitTransactionPassword(transaction),
+            transactionHistory: transaction.transactionHistory.map(
+              (history) => ({
+                id: history.id,
+                user_id: history.user_id,
+                movement_date: history.movement_date,
+                user: {
+                  id: history.user.id,
+                  name: history.user.name,
+                  email: history.user.email,
+                },
+              }),
+            ),
+          };
+        }),
         meta: {
           total,
           page: parsedPage,

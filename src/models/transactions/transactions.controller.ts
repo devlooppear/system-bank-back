@@ -58,6 +58,12 @@ export class TransactionsController {
     enum: ['asc', 'desc'],
     example: 'desc',
   })
+  @ApiQuery({
+    name: 'user_id',
+    required: false,
+    type: Number,
+    example: 1,
+  })
   findAll(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
@@ -66,8 +72,9 @@ export class TransactionsController {
     @Query('endDate') endDate?: string,
     @Query('minAmount') minAmount?: number,
     @Query('maxAmount') maxAmount?: number,
-    @Query('sortBy') sortBy?: string,
-    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
+    @Query('sortBy') sortBy: string = 'transaction_date',
+    @Query('sortOrder') sortOrder: 'asc' | 'desc' = 'asc',
+    @Query('user_id') userId?: string,
   ) {
     const filters = {
       transaction_type: transactionType,
@@ -75,6 +82,7 @@ export class TransactionsController {
       endDate,
       minAmount,
       maxAmount,
+      user_id: userId ? parseInt(userId, 10) : undefined,
     };
 
     return this.transactionsService.findAll(
