@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma.service';
 import logger from 'winston.config';
 import * as bcrypt from 'bcrypt';
+import { TransactionType } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -85,19 +86,59 @@ export class UsersService {
     userId: number,
     page: number = 1,
     limit: number = 10,
+    transactionType?: TransactionType,
+    startDate?: Date,
+    endDate?: Date,
+    minAmount?: number,
+    maxAmount?: number,
+    period?: '7' | '15' | '30' | '90',
+    sortByDate?: 'asc' | 'desc',
   ) {
     try {
       const parsedLimit = parseInt(limit as any, 10);
       const parsedPage = parseInt(page as any, 10);
 
+      if (period) {
+        const today = new Date();
+        const start = new Date();
+        if (period === '7') start.setDate(today.getDate() - 7);
+        if (period === '15') start.setDate(today.getDate() - 15);
+        if (period === '30') start.setDate(today.getDate() - 30);
+        if (period === '90') start.setDate(today.getDate() - 90);
+
+        startDate = start;
+        endDate = today;
+      }
+
       const [transactions, total] = await Promise.all([
         this.prisma.transaction.findMany({
-          where: { account: { user_id: userId } },
+          where: {
+            account: {
+              user_id: userId,
+            },
+            ...(transactionType && { transaction_type: transactionType }),
+            ...(startDate && { transaction_date: { gte: startDate } }),
+            ...(endDate && { transaction_date: { lte: endDate } }),
+            ...(minAmount && { amount: { gte: minAmount } }),
+            ...(maxAmount && { amount: { lte: maxAmount } }),
+          },
           skip: (parsedPage - 1) * parsedLimit,
           take: parsedLimit,
+          orderBy: {
+            transaction_date: sortByDate ? sortByDate : 'desc',
+          },
         }),
         this.prisma.transaction.count({
-          where: { account: { user_id: userId } },
+          where: {
+            account: {
+              user_id: userId,
+            },
+            ...(transactionType && { transaction_type: transactionType }),
+            ...(startDate && { transaction_date: { gte: startDate } }),
+            ...(endDate && { transaction_date: { lte: endDate } }),
+            ...(minAmount && { amount: { gte: minAmount } }),
+            ...(maxAmount && { amount: { lte: maxAmount } }),
+          },
         }),
       ]);
 
