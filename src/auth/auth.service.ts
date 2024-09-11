@@ -53,7 +53,7 @@ export class AuthService {
     try {
       const payload = { userId, email };
 
-      const token = sign(payload, process.env.JWT_SECRET, { expiresIn: '3h' });
+      const token = sign(payload, process.env.JWT_SECRET);
       return token;
     } catch (error) {
       logger.error('Error generating JWT: ', error);
@@ -68,7 +68,7 @@ export class AuthService {
           token,
           user_id: userId,
 
-          expires_at: new Date(Date.now() + 3 * 60 * 60 * 1000),
+          expires_at: null,
         },
       });
     } catch (error) {
@@ -116,10 +116,8 @@ export class AuthService {
         where: { token },
       });
 
-      if (!foundToken || foundToken.expires_at < new Date()) {
-        logger.warn(
-          `Token validation failed: Invalid or expired token ${token}`,
-        );
+      if (!foundToken) {
+        logger.warn(`Token validation failed: Invalid token ${token}`);
         throw new UnauthorizedException('Token is invalid or expired');
       }
 
