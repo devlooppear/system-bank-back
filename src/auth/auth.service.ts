@@ -40,6 +40,7 @@ export class AuthService {
 
       return {
         message: 'User logged in',
+        user_id: user.id,
         token,
       };
     } catch (error) {
