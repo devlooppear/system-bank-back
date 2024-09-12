@@ -41,7 +41,7 @@ docker-compose up
 ### Populate the Database
 
 ```bash
-npm run migraate:fresh
+npm run migrate:fresh
 ```
 
 ### Run the App:
