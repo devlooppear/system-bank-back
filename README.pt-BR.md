@@ -36,13 +36,13 @@ cp .env.example .env
 ### Inicie a aplicação:
 
 ```bash
-docker-compose up
+docker compose up
 ```
 
 ### Popular o Banco de Dados
 
 ```bash
-npm run migraate:fresh
+npm run migrate:fresh
 ```
 
 ### Execute a aplicação:

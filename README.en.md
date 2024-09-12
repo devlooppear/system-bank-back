@@ -35,13 +35,13 @@ cp .env.example .env
 ### Start the application:
 
 ```bash
-docker-compose up
+docker compose up
 ```
 
 ### Populate the Database
 
 ```bash
-npm run migraate:fresh
+npm run migrate:fresh
 ```
 
 ### Run the App:
