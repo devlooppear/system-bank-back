@@ -38,6 +38,12 @@ cp .env.example .env
 docker-compose up
 ```
 
+### Populate the Database
+
+```bash
+npm run migraate:fresh
+```
+
 ### Run the App:
 
 ```bash

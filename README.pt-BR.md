@@ -39,6 +39,12 @@ cp .env.example .env
 docker-compose up
 ```
 
+### Popular o Banco de Dados
+
+```bash
+npm run migraate:fresh
+```
+
 ### Execute a aplicação:
 
 ```bash
