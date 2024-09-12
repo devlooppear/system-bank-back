@@ -3,7 +3,7 @@ import { transactionFactory } from '../factories/transactions.factory';
 
 export async function seedTransactions(prisma: PrismaClient) {
   try {
-    const numberOfTransactions = 100;
+    const numberOfTransactions = 200;
 
     await Promise.all(
       Array.from({ length: numberOfTransactions }, () =>
