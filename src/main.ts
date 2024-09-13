@@ -18,7 +18,13 @@ async function bootstrap() {
   const isDevelopment = environment === 'development';
 
   app.enableCors({
-    origin: isDevelopment ? 'http://localhost:5173' : 'https://system-bank.vercel.app',
+    origin: (origin, callback) => {
+      if (!origin || ['http://localhost:5173', 'http://localhost:5174'].includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
