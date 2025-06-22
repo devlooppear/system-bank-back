@@ -58,3 +58,7 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 DATABASE-STRUCTURE.md
 
 /prisma/migrations/*
+
+# Lock Files
+package-lock.json
+pnpm-lock.yaml
