@@ -34,8 +34,9 @@ const logger = createLogger({
     }),
   ),
   transports: [
-    new transports.File(fileTransportOptions),
-
+    /* Só pra log local 
+ new transports.File(fileTransportOptions),
+ */
     new transports.Console({
       format: colorizeFormatter,
     }),
