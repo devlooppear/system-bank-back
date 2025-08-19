@@ -7,8 +7,8 @@ import { PrismaClient } from '@prisma/client';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import * as bcrypt from 'bcrypt';
 import { sign, verify } from 'jsonwebtoken';
-import logger from 'winston.config';
 import * as dotenv from 'dotenv';
+import logger from '../../winston.config';
 
 dotenv.config();
 

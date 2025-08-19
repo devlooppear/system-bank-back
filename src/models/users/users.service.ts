@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import logger from 'winston.config';
 import * as bcrypt from 'bcrypt';
 import { TransactionType, User } from '@prisma/client';
 import { PrismaService } from '../../prisma.service';
 import { AuthUser } from '../../interfaces/auth-user.interface';
+import logger from '../../../winston.config';
 
 @Injectable()
 export class UsersService {

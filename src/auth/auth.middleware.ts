@@ -6,8 +6,8 @@ import {
 import { Request, Response, NextFunction } from 'express';
 import { verify } from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
-import logger from 'winston.config';
 import { UsersService } from '../models/users/users.service';
+import logger from '../../winston.config';
 
 dotenv.config();
 
