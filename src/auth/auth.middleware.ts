@@ -5,9 +5,9 @@ import {
 } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { verify } from 'jsonwebtoken';
-import { UsersService } from 'src/models/users/users.service';
 import * as dotenv from 'dotenv';
 import logger from 'winston.config';
+import { UsersService } from '../models/users/users.service';
 
 dotenv.config();
 

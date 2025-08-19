@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
 import { CreateTransactionHistoryDto } from './dto/create-transaction-history.dto';
 import { UpdateTransactionHistoryDto } from './dto/update-transaction-history.dto';
 import logger from 'winston.config';
+import { PrismaService } from '../../prisma.service';
 
 @Injectable()
 export class TransactionHistoriesService {

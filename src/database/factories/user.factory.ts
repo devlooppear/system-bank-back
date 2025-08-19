@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import * as bcrypt from 'bcrypt';
-import { User } from 'src/models/users/entities/user.entity';
+import { User } from '../../models/users/entities/user.entity';
 
 const SALT_ROUNDS = 10;
 

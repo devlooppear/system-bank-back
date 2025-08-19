@@ -1,6 +1,6 @@
 import { AccountType, PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
-import { Account } from 'src/models/accounts/entities/account.entity';
+import { Account } from '../../models/accounts/entities/account.entity';
 
 export const accountFactory = async (
   prisma: PrismaClient,

@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import { TransactionHistory } from 'src/models/transaction-histories/entities/transaction-history.entity';
 import { faker } from '@faker-js/faker';
+import { TransactionHistory } from '../../models/transaction-histories/entities/transaction-history.entity';
 
 export const transactionHistoryFactory = async (
   prisma: PrismaClient,
